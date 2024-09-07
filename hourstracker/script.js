@@ -80,9 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dayCell.placeholder = '0';
       dayCell.dataset.day = day;
       dayCell.value = workHours[month][day - 1] !== 0 ? workHours[month][day - 1] : '';
-      if (dayCell.value === 0) {
-        dayCell.value = '';
-      }
+      
       dayCell.addEventListener('change', (event) => {
         const dayIndex = event.target.dataset.day - 1;
         workHours[month][dayIndex] = parseFloat(event.target.value) || 0;
