@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const hourlyRateInput = document.getElementById('hourlyRate');
   const earningsOverview = document.getElementById('earningsOverview');
   const monthSelect = document.getElementById('monthSelect');
+  const deleteButton = document.getElementById('deleteButton');
+
   
   const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Days in each month
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Starting week from Sunday
@@ -129,6 +131,13 @@ document.addEventListener('DOMContentLoaded', () => {
   hourlyRateInput.addEventListener('change', () => {
     calculateEarnings();
     saveToLocalStorage(); // Save changes to localStorage when hourly rate changes
+  });
+
+  // Event listener to delete all data from localStorage
+  deleteButton.addEventListener('click', () => {
+    localStorage.removeItem('workHoursData'); // Remove work hours data from local storage
+    alert('All work hours data has been deleted.');
+    location.reload(); // Reload the page to reset the form
   });
 
   // Load data from localStorage on page load
