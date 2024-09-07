@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dayCell.classList.add('w-full', 'border-gray-300', 'rounded-lg', 'shadow-sm', 'text-center', 'mt-1');
       dayCell.placeholder = '0';
       dayCell.dataset.day = day;
-      dayCell.value = workHours[month][day - 1] || 0; // Load saved value if available
+      dayCell.value = workHours[month][day - 1] !== 0 ? workHours[month][day - 1] : '';
       dayCell.addEventListener('change', (event) => {
         const dayIndex = event.target.dataset.day - 1;
         workHours[month][dayIndex] = parseFloat(event.target.value) || 0;
