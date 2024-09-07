@@ -1,21 +1,52 @@
 document.addEventListener('DOMContentLoaded', () => {
   const calendarGrid = document.getElementById('calendarGrid');
   const hourlyRateInput = document.getElementById('hourlyRate');
-  const saveButton = document.getElementById('saveButton');
   const earningsOverview = document.getElementById('earningsOverview');
+  const monthSelect = document.getElementById('monthSelect');
   
   const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Days in each month
-  const weekDays = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Starting week from Monday
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Starting week from Sunday
   
   let selectedMonth = 0;  // Default to January
-  let workHours = [];  // Array to store work hours for each day
+  let workHours = {};  // Object to store work hours for each month
   let monthlyEarnings = Array(12).fill(0); // Array to store earnings for each month
-  
+
+  // Function to save data to localStorage
+  function saveToLocalStorage() {
+    const data = {
+      hourlyRate: parseFloat(hourlyRateInput.value) || 0,
+      workHours,
+      monthlyEarnings
+    };
+    localStorage.setItem('workHoursData', JSON.stringify(data));
+  }
+
+  // Function to load data from localStorage
+  function loadFromLocalStorage() {
+    const savedData = localStorage.getItem('workHoursData');
+    if (savedData) {
+      const data = JSON.parse(savedData);
+      hourlyRateInput.value = data.hourlyRate || 30; // Load saved hourly rate or set default to 30
+      workHours = data.workHours || {};
+      monthlyEarnings = data.monthlyEarnings || Array(12).fill(0);
+      updateEarningsOverview();
+      generateCalendar(selectedMonth);
+    } else {
+      // If no saved data, set default hourly rate
+      hourlyRateInput.value = 30;
+      workHours[selectedMonth] = Array(daysInMonths[selectedMonth]).fill(0);
+    }
+  }
+
   // Function to generate the calendar based on the selected month
   function generateCalendar(month) {
     calendarGrid.innerHTML = '';  // Clear previous calendar
     const daysInMonth = daysInMonths[month];
-    workHours = Array(daysInMonth).fill(0);  // Reset work hours array for the new month
+
+    // If no work hours data exists for the selected month, initialize it
+    if (!workHours[month]) {
+      workHours[month] = Array(daysInMonth).fill(0);
+    }
 
     // Get the first day of the month to align the weekdays (adjusted to make Monday the first day)
     const firstDay = (new Date(2024, month, 1).getDay() + 6) % 7; // Shift Sunday (0) to the last position
@@ -48,10 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
       dayCell.classList.add('w-full', 'border-gray-300', 'rounded-lg', 'shadow-sm', 'text-center', 'mt-1');
       dayCell.placeholder = '0';
       dayCell.dataset.day = day;
+      dayCell.value = workHours[month][day - 1] || 0; // Load saved value if available
       dayCell.addEventListener('change', (event) => {
         const dayIndex = event.target.dataset.day - 1;
-        workHours[dayIndex] = parseFloat(event.target.value) || 0;
+        workHours[month][dayIndex] = parseFloat(event.target.value) || 0;
         calculateEarnings();
+        saveToLocalStorage(); // Save changes to localStorage whenever work hours change
       });
       dayContainer.appendChild(dayCell);
 
@@ -62,12 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to calculate total earnings for the month
   function calculateEarnings() {
     const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
-    const totalHours = workHours.reduce((total, hours) => total + hours, 0);
+    const totalHours = workHours[selectedMonth].reduce((total, hours) => total + hours, 0);
     const totalEarnings = totalHours * hourlyRate;
 
     // Update the earnings for the selected month
     monthlyEarnings[selectedMonth] = totalEarnings;
     updateEarningsOverview();
+    saveToLocalStorage(); // Save changes to localStorage when earnings change
   }
 
   // Function to update the earnings overview for all months
@@ -87,14 +121,15 @@ document.addEventListener('DOMContentLoaded', () => {
   monthSelect.addEventListener('change', (event) => {
     selectedMonth = parseInt(event.target.value);
     generateCalendar(selectedMonth);
+    saveToLocalStorage(); // Save changes to localStorage when month is changed
   });
 
-  // Save work hours (could store in local storage or backend in real use)
-  saveButton.addEventListener('click', () => {
-    alert('Work hours saved successfully!');
+  // Event listener to update hourly rate and save to localStorage
+  hourlyRateInput.addEventListener('change', () => {
+    calculateEarnings();
+    saveToLocalStorage(); // Save changes to localStorage when hourly rate changes
   });
 
-  // Initial calendar generation for the default month (January)
-  generateCalendar(selectedMonth);
-  updateEarningsOverview(); // Initialize earnings overview
+  // Load data from localStorage on page load
+  loadFromLocalStorage();
 });
