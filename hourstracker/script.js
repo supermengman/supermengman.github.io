@@ -108,6 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
           workHours[month][dayIndex].paid = false; // Reset paid status if hours are zero
           event.target.nextSibling.checked = false;
           event.target.nextSibling.disabled = true;
+        } else {
+          event.target.nextSibling.disabled = false;
         }
         dayContainer.style.backgroundColor = workHours[month][dayIndex].paid || workHours[month][dayIndex].hours === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
         calculateEarnings();
