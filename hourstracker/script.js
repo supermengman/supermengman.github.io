@@ -175,17 +175,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const monthHeader = document.createElement('th');
     monthHeader.innerText = 'Month';
-    monthHeader.classList.add('px-6', 'py-3', 'text-left', 'text-xs', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
+    monthHeader.classList.add('px-6', 'py-3', 'text-left', 'text-sm', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
     headerRow.appendChild(monthHeader);
   
     const totalMoneyHeader = document.createElement('th');
     totalMoneyHeader.innerText = 'Total Earnings';
-    totalMoneyHeader.classList.add('px-6', 'py-3', 'text-right', 'text-xs', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
+    totalMoneyHeader.classList.add('px-6', 'py-3', 'text-right', 'text-sm', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
     headerRow.appendChild(totalMoneyHeader);
   
     const unpaidMoneyHeader = document.createElement('th');
     unpaidMoneyHeader.innerText = 'Unpaid Earnings';
-    unpaidMoneyHeader.classList.add('px-6', 'py-3', 'text-right', 'text-xs', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
+    unpaidMoneyHeader.classList.add('px-6', 'py-3', 'text-right', 'text-sm', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
     headerRow.appendChild(unpaidMoneyHeader);
   
     thead.appendChild(headerRow);
@@ -204,17 +204,17 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const monthCell = document.createElement('td');
       monthCell.innerText = monthNames[i];
-      monthCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
+      monthCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-md', 'text-gray-900');
       row.appendChild(monthCell);
   
       const totalMoneyCell = document.createElement('td');
       totalMoneyCell.innerText = `$${monthlyEarnings[i].totalMoney.toFixed(2)}`;
-      totalMoneyCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900', 'text-right');
+      totalMoneyCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-md', 'text-gray-900', 'text-right');
       row.appendChild(totalMoneyCell);
   
       const unpaidMoneyCell = document.createElement('td');
       unpaidMoneyCell.innerText = `$${monthlyEarnings[i].unpaidMoney.toFixed(2)}`;
-      unpaidMoneyCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900', 'text-right');
+      unpaidMoneyCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-md', 'text-gray-900', 'text-right');
       row.appendChild(unpaidMoneyCell);
 
       row.classList.add('hover:bg-gray-100');
