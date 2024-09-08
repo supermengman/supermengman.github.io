@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dayCell.value = workHours[month][day - 1].hours !== 0 ? workHours[month][day - 1].hours : '';
 
       // highlight unpaid cells in light red if its not zero
-      dayContainer.style.backgroundColor = workHours[month][day - 1].paid || dayCell.value === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
+      dayContainer.style.backgroundColor = workHours[month][day - 1].paid || workHours[month][day-1].hours === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
 
       dayCell.addEventListener('change', (event) => {
         const dayIndex = event.target.dataset.day - 1;
