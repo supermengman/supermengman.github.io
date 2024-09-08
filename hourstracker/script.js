@@ -128,6 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    if (!monthlyEarnings[selectedMonth]) {
+      monthlyEarnings[selectedMonth] = { totalMoney: 0, unpaidMoney: 0 };
+    }
+
     const totalEarnings = totalHours * hourlyRate;
     monthlyEarnings[selectedMonth].totalMoney = totalEarnings;
     monthlyEarnings[selectedMonth].unpaidMoney = unpaidHours * hourlyRate;
