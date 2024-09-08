@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dayCell.value = workHours[month][day - 1].hours !== 0 ? workHours[month][day - 1].hours : '';
 
       // highlight unpaid cells in light red if its not zero
-      dayContainer.style.backgroundColor = workHours[month][day - 1].paid || workHours[month][day-1].hours === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
+      dayContainer.style.backgroundColor = workHours[month][day - 1].paid || workHours[month][day - 1].hours === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
 
       dayCell.addEventListener('change', (event) => {
         const dayIndex = event.target.dataset.day - 1;
@@ -163,15 +163,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to update the earnings overview for all months
   function updateEarningsOverview() {
-    earningsOverview.innerHTML = '';
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    earningsOverview.innerHTML = ''; // Clear previous content
+  
+    // Create a table with Tailwind classes for styling
+    const table = document.createElement('table');
+    table.classList.add('min-w-full', 'divide-y', 'divide-gray-200', 'table-auto', 'border-collapse');
+  
+    // Create a table header row with Tailwind classes for styling
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    
+    const monthHeader = document.createElement('th');
+    monthHeader.innerText = 'Month';
+    monthHeader.classList.add('px-6', 'py-3', 'text-left', 'text-xs', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
+    headerRow.appendChild(monthHeader);
+  
+    const totalMoneyHeader = document.createElement('th');
+    totalMoneyHeader.innerText = 'Total Earnings';
+    totalMoneyHeader.classList.add('px-6', 'py-3', 'text-right', 'text-xs', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
+    headerRow.appendChild(totalMoneyHeader);
+  
+    const unpaidMoneyHeader = document.createElement('th');
+    unpaidMoneyHeader.innerText = 'Unpaid Earnings';
+    unpaidMoneyHeader.classList.add('px-6', 'py-3', 'text-right', 'text-xs', 'font-heavy', 'text-gray-500', 'uppercase', 'tracking-wider', 'bg-gray-50');
+    headerRow.appendChild(unpaidMoneyHeader);
+  
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
 
+    
+  
+    // Create a table body
+    const tbody = document.createElement('tbody');
+    tbody.classList.add('bg-white', 'divide-y', 'divide-gray-200');
+  
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  
     for (let i = 0; i < 12; i++) {
-      const earningsText = document.createElement('div');
-      earningsText.classList.add('text-lg', 'flex', 'justify-between');
-      earningsText.innerHTML = `<span>${monthNames[i]}:</span> <span>$${monthlyEarnings[i].totalMoney.toFixed(2)}</span> <span>Unpaid: $${monthlyEarnings[i].unpaidMoney.toFixed(2)}</span>`;
-      earningsOverview.appendChild(earningsText);
+      const row = document.createElement('tr');
+      
+      const monthCell = document.createElement('td');
+      monthCell.innerText = monthNames[i];
+      monthCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
+      row.appendChild(monthCell);
+  
+      const totalMoneyCell = document.createElement('td');
+      totalMoneyCell.innerText = `$${monthlyEarnings[i].totalMoney.toFixed(2)}`;
+      totalMoneyCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900', 'text-right');
+      row.appendChild(totalMoneyCell);
+  
+      const unpaidMoneyCell = document.createElement('td');
+      unpaidMoneyCell.innerText = `$${monthlyEarnings[i].unpaidMoney.toFixed(2)}`;
+      unpaidMoneyCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900', 'text-right');
+      row.appendChild(unpaidMoneyCell);
+
+      row.classList.add('hover:bg-gray-100');
+  
+      tbody.appendChild(row);
     }
+  
+    table.appendChild(tbody);
+  
+    // Append the table to the earnings overview
+    earningsOverview.appendChild(table);
   }
 
   // Event listener to update calendar when a new month is selected
@@ -197,8 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load data from localStorage on page load
   loadFromLocalStorage();
 
-  // Initialize the calendar for the current month
-  currentMonth = new Date().getMonth();
+  // Initialize the calendar for the current month on page load
+  const currentMonth = new Date().getMonth();
+  selectedMonth = currentMonth; // Set selectedMonth to the current month
   monthSelect.value = currentMonth;
   generateCalendar(currentMonth);
+  calculateEarnings(); // Ensure earnings are calculated for the current month on load
 });
