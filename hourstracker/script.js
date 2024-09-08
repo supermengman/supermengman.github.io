@@ -196,4 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load data from localStorage on page load
   loadFromLocalStorage();
+
+  // Initialize the calendar for the current month
+  currentMonth = new Date().getMonth();
+  monthSelect.value = currentMonth;
+  generateCalendar(currentMonth);
 });
