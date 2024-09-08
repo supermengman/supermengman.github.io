@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // If no saved data, set default hourly rate
       hourlyRateInput.value = 35;
       workHours[selectedMonth] = Array.from({ length: daysInMonths[selectedMonth] }, () => ({ hours: 0, paid: false }));
+      monthlyEarnings[selectedMonth] = { totalMoney: 0, unpaidMoney: 0 };
     }
   }
 
