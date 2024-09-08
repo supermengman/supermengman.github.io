@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let selectedMonth = 0;  // Default to January
   let workHours = {};  // Object to store work hours for each month
-  let monthlyEarnings = Array(12).fill(0); // Array to store earnings for each month
+  let monthlyEarnings = {}; // Object to store total earnings for each month
 
   // Function to save data to localStorage
   function saveToLocalStorage() {
@@ -28,15 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedData = localStorage.getItem('workHoursData');
     if (savedData) {
       const data = JSON.parse(savedData);
-      hourlyRateInput.value = data.hourlyRate || 30; // Load saved hourly rate or set default to 30
+      hourlyRateInput.value = data.hourlyRate || 35; // Load saved hourly rate or set default to 30
       workHours = data.workHours || {};
-      monthlyEarnings = data.monthlyEarnings || Array(12).fill(0);
+      monthlyEarnings = data.monthlyEarnings || Array.from({ length: 12 }, () => ({ totalMoney: 0, unpaidMoney: 0 }));
       updateEarningsOverview();
       generateCalendar(selectedMonth);
     } else {
       // If no saved data, set default hourly rate
-      hourlyRateInput.value = 30;
-      workHours[selectedMonth] = Array(daysInMonths[selectedMonth]).fill(0);
+      hourlyRateInput.value = 35;
+      workHours[selectedMonth] = Array.from({ length: daysInMonths[selectedMonth] }, () => ({ hours: 0, paid: false }));
     }
   }
 
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // If no work hours data exists for the selected month, initialize it
     if (!workHours[month]) {
-      workHours[month] = Array(daysInMonth).fill(0);
+      workHours[month] = Array.from({ length: daysInMonth }, () => ({ hours: 0, paid: false }));
     }
 
     // Get the first day of the month to align the weekdays (adjusted to make Monday the first day)
@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const dayContainer = document.createElement('div');
       dayContainer.classList.add('flex', 'flex-col', 'items-center', 'p-2', 'border', 'border-gray-300', 'rounded-lg', 'shadow-sm');
 
+
       // Create a label to show day of the week and date
       const dayLabel = document.createElement('span');
       dayLabel.classList.add('text-xs', 'text-gray-500');
@@ -81,15 +82,33 @@ document.addEventListener('DOMContentLoaded', () => {
       dayCell.classList.add('w-full', 'border-gray-300', 'rounded-lg', 'shadow-sm', 'text-center', 'mt-1');
       dayCell.placeholder = '0';
       dayCell.dataset.day = day;
-      dayCell.value = workHours[month][day - 1] !== 0 ? workHours[month][day - 1] : '';
+      dayCell.value = workHours[month][day - 1].hours !== 0 ? workHours[month][day - 1].hours : '';
       
+      // highlight unpaid cells in light red if its not zero
+      dayContainer.style.backgroundColor = workHours[month][day - 1].paid || dayCell.value === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
+
       dayCell.addEventListener('change', (event) => {
         const dayIndex = event.target.dataset.day - 1;
-        workHours[month][dayIndex] = parseFloat(event.target.value) || 0;
+        workHours[month][dayIndex].hours = parseFloat(event.target.value) || 0;
         calculateEarnings();
         saveToLocalStorage(); // Save changes to localStorage whenever work hours change
       });
       dayContainer.appendChild(dayCell);
+
+      // Create checkbox to mark as paid
+      const paidCheckbox = document.createElement('input');
+      paidCheckbox.type = 'checkbox';
+      paidCheckbox.disabled = workHours[month][day - 1].hours === 0;
+      paidCheckbox.classList.add('mt-1');
+      paidCheckbox.checked = workHours[month][day - 1].paid;
+      paidCheckbox.addEventListener('change', (event) => {
+        const dayIndex = event.target.previousSibling.dataset.day - 1;
+        workHours[month][dayIndex].paid = event.target.checked;
+        dayContainer.style.backgroundColor = event.target.checked || workHours[month][dayIndex].hours === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
+        calculateEarnings();
+        saveToLocalStorage(); // Save changes to localStorage whenever work hours change
+      });
+      dayContainer.appendChild(paidCheckbox);
 
       calendarGrid.appendChild(dayContainer);
     }
@@ -98,13 +117,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to calculate total earnings for the month
   function calculateEarnings() {
     const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
-    const totalHours = workHours[selectedMonth].reduce((total, hours) => total + hours, 0);
-    const totalEarnings = totalHours * hourlyRate;
+    let totalHours = 0;
+    let unpaidHours = 0;
 
-    // Update the earnings for the selected month
-    monthlyEarnings[selectedMonth] = totalEarnings;
+    workHours[selectedMonth].forEach((day) => {
+      totalHours += day.hours;
+      if (!day.paid) {
+        unpaidHours += day.hours;
+      }
+    });
+
+    const totalEarnings = totalHours * hourlyRate;
+    monthlyEarnings[selectedMonth].totalMoney = totalEarnings;
+    monthlyEarnings[selectedMonth].unpaidMoney = unpaidHours * hourlyRate;
+
     updateEarningsOverview();
-    saveToLocalStorage(); // Save changes to localStorage when earnings change
+    saveToLocalStorage(); // Save changes to localStorage whenever earnings change
   }
 
   // Function to update the earnings overview for all months
@@ -115,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < 12; i++) {
       const earningsText = document.createElement('div');
       earningsText.classList.add('text-lg', 'flex', 'justify-between');
-      earningsText.innerHTML = `<span>${monthNames[i]}:</span> <span>$${monthlyEarnings[i].toFixed(2)}</span>`;
+      earningsText.innerHTML = `<span>${monthNames[i]}:</span> <span>$${monthlyEarnings[i].totalMoney.toFixed(2)}</span> <span>Unpaid: $${monthlyEarnings[i].unpaidMoney.toFixed(2)}</span>`;
       earningsOverview.appendChild(earningsText);
     }
   }
