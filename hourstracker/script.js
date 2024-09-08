@@ -104,8 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
       dayCell.addEventListener('change', (event) => {
         const dayIndex = event.target.dataset.day - 1;
         workHours[month][dayIndex].hours = parseFloat(event.target.value) || 0;
-        event.target.nextSibling.disabled = workHours[month][dayIndex].hours === 0; // Disable checkbox if hours are zero
-        event.target.nextSibling.checked = workHours[month][dayIndex].hours === 0 ? false : event.target.nextSibling.checked; // Uncheck paid if hours are zero
+        if (workHours[month][dayIndex].hours === 0) {
+          workHours[month][dayIndex].paid = false; // Reset paid status if hours are zero
+          event.target.nextSibling.checked = false;
+          event.target.nextSibling.disabled = true;
+        }
         dayContainer.style.backgroundColor = workHours[month][dayIndex].paid || workHours[month][dayIndex].hours === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
         calculateEarnings();
         saveToLocalStorage(); // Save changes to localStorage whenever work hours change
