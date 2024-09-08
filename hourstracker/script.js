@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const monthSelect = document.getElementById('monthSelect');
   const deleteButton = document.getElementById('deleteButton');
 
-  
+
   const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Days in each month
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Starting week from Sunday
-  
+
   let selectedMonth = 0;  // Default to January
   let workHours = {};  // Object to store work hours for each month
   let monthlyEarnings = {}; // Object to store total earnings for each month
@@ -31,13 +31,26 @@ document.addEventListener('DOMContentLoaded', () => {
       hourlyRateInput.value = data.hourlyRate || 35; // Load saved hourly rate or set default to 30
       workHours = data.workHours || {};
       monthlyEarnings = data.monthlyEarnings || Array.from({ length: 12 }, () => ({ totalMoney: 0, unpaidMoney: 0 }));
+
+      // Initialize each month properly
+      for (let month = 0; month < 12; month++) {
+        if (!workHours[month]) {
+          workHours[month] = Array.from({ length: daysInMonths[month] }, () => ({ hours: 0, paid: false }));
+        }
+        if (!monthlyEarnings[month]) {
+          monthlyEarnings[month] = { totalMoney: 0, unpaidMoney: 0 };
+        }
+      }
+
       updateEarningsOverview();
       generateCalendar(selectedMonth);
     } else {
       // If no saved data, set default hourly rate
       hourlyRateInput.value = 35;
-      workHours[selectedMonth] = Array.from({ length: daysInMonths[selectedMonth] }, () => ({ hours: 0, paid: false }));
-      monthlyEarnings[selectedMonth] = { totalMoney: 0, unpaidMoney: 0 };
+      for (let month = 0; month < 12; month++) {
+        workHours[month] = Array.from({ length: daysInMonths[month] }, () => ({ hours: 0, paid: false }));
+        monthlyEarnings[month] = { totalMoney: 0, unpaidMoney: 0 };
+      }
     }
   }
 
@@ -53,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get the first day of the month to align the weekdays (adjusted to make Monday the first day)
     const firstDay = (new Date(2024, month, 1).getDay() + 6) % 7; // Shift Sunday (0) to the last position
-    
+
     // Add empty spaces if the month doesn't start on Monday
     for (let i = 0; i < firstDay; i++) {
       const blankCell = document.createElement('div');
@@ -84,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dayCell.placeholder = '0';
       dayCell.dataset.day = day;
       dayCell.value = workHours[month][day - 1].hours !== 0 ? workHours[month][day - 1].hours : '';
-      
+
       // highlight unpaid cells in light red if its not zero
       dayContainer.style.backgroundColor = workHours[month][day - 1].paid || dayCell.value === 0 ? '' : '#ffe6e6'; // Highlight unpaid in light red
 
